@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
+
 
 class TodoItem extends Component {
   getStyle = () => {
@@ -18,7 +20,9 @@ class TodoItem extends Component {
       <div style={this.getStyle()}>
       <p>
       <input type="checkbox" name="" onChange={this.props.markComplete.bind(this, id)}/>{' '}
-      { title }
+      <Link  to={`/edit/${id}`}>
+        { title }
+      </Link>
       <button style={btnStyle} onClick={this.props.delTodo.bind(this, id)}>x</button>
       </p>
       </div>

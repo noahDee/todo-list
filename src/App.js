@@ -7,6 +7,7 @@ import AddTodo from './components/AddTodo'
 import uuid from 'uuid'
 import About from './components/pages/about'
 import Axios from 'axios';
+import EditTodo from './components/EditTodo'
 
 
 class App extends Component {
@@ -17,54 +18,82 @@ class App extends Component {
   }
 
   componentDidMount() {
-    Axios.get('https://jsonplaceholder.typicode.com/todos?_limit=10')
+    Axios.get('http://localhost:4000/todos')
       .then((res) => {
+        console.log("here");
+        console.log(res.data);
         this.setState({ todos: res.data});
       })
   }
 
   // toggles complete
   markComplete = (id) => {
-    this.setState({ todos: this.state.todos.map(todo => {
-      if(todo.id === id){
-        todo.completed = !todo.completed;
-      }
-      return todo;
-    })})
+    Axios.patch(`http://localhost:4000/todos/edit/${id}`)
+      .then((res) => {
+        console.log(res);
+      })
+      this.setState({ todos: this.state.todos.map(todo => {
+        if(todo.id === id){
+          todo.completed = !todo.completed;
+        }
+        return todo;
+      })
+    })
   }
 
   // Delete todo
   delTodo = (id) => {
 
-    // axios.delete(`https://jsonplaceholder.typicode.com/todos/${id}`)
-    //   .then((res) => {
-    //     this.setState({ todos: [...this.state.todos.filter(todo =>
-    //       todo.id !== id
-    //     )
-    //   });
-    this.setState({ todos: [...this.state.todos.filter(todo =>
-      todo.id !== id
-    )
-  ]})
+    Axios.delete(`http://localhost:4000/todos/del/${id}`)
+      .then((res) => {
+        console.log(res);
+        this.setState({ todos: [...this.state.todos.filter(todo =>
+          todo.id !== id
+        )]
+      });
+    })
+  //   this.setState({ todos: [...this.state.todos.filter(todo =>
+  //     todo.id !== id
+  //   )
+  // ]})
   }
 
-  addTodo = (title) => {
-    // axios.post('https://jsonplaceholder.typicode.com/', {
-    //   title,
-    //   completed: false,
-    //
-    // }).then((res) => {
-    //   this.setState({ todos: [...this.state.todos, res.data]})
-    //
-    // });
-
-    const newTodo = {
-      id: uuid.v4(),
+  addTodo = (title, description) => {
+    console.log(title);
+    Axios.post('http://localhost:4000/todos/add', {
       title,
-      completed: false
-    }
-    this.setState({ todos: [...this.state.todos, newTodo]})
+      completed: false,
+      description,
+
+    }).then((res) => {
+      console.log(`new todo ${res.data}`);
+      this.setState({ todos: [...this.state.todos, res.data]})
+
+    });
+
+    // const newTodo = {
+    //   id: uuid.v4(),
+    //   title,
+    //   completed: false
+    // }
+    // this.setState({ todos: [...this.state.todos, newTodo]})
   }
+
+  showTodo = (id) => {
+    let target = []
+    this.state.todos.map(todo => {
+      if(todo.id === id) {
+        target.push(todo)
+      }
+    })
+
+    return target
+  }
+
+  editTodo = (json) => {
+
+  }
+
 
   render() {
     console.log(this.state.todos);
@@ -75,7 +104,6 @@ class App extends Component {
             <Header />
             <Route exact path='/' render={props => (
                 <React.Fragment>
-                  <AddTodo addTodo={this.addTodo} />
                   <Todos todos={this.state.todos} markComplete={this.markComplete} delTodo={this.delTodo}/>
 
                 </React.Fragment>
@@ -84,6 +112,27 @@ class App extends Component {
             <Route path='/about' render={props => (
                 <React.Fragment>
                   <About />
+                </React.Fragment>
+              )} />
+
+            <Route path='/new-todo' render={props => (
+                <React.Fragment>
+                  <AddTodo addTodo={this.addTodo} />
+
+                </React.Fragment>
+              )} />
+
+            <Route path='/todo/:id' render={props => (
+                // const { match: {params}} = this.props;
+                <React.Fragment>
+                  <Todos todos={this.showTodo(props.match.params.id)} markComplete={this.markComplete}
+                  delTodo={this.delTodo} />
+                </React.Fragment>
+              )} />
+
+            <Route path='/edit/:id' render= {props => (
+                <React.Fragment>
+                  <EditTodo todoId={props.match.params.id} />
                 </React.Fragment>
               )} />
 

@@ -11,6 +11,9 @@ function Header(){
     <Link style={linkStyle} to="/about">
       About
     </Link>
+    <Link style={linkStyle} to="/new-todo">
+      Add Todo
+    </Link>
     </header>
   )
 }
